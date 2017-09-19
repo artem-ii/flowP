@@ -49,4 +49,4 @@ df <- popConstruct("pops.txt", all_data)
 close(inpops)
 getwd()
 l <- tempdf[1]
-names(tempdf[[1]]) <- "oh"
+names(tempdf[[1]]) <- "ohh"
