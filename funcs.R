@@ -16,7 +16,7 @@ blya <- function(all_data, cellcount, vcellcount, pop_ls, srch_v, kids_names, po
      # print(j)
       if (length(grep(j, i)) != 0 & length(grep(pop, i)) != 0){
         if (grep(j, i) - grep(pop, i) == 1 & i[grep(j, i)] == tail(i, 1)){
-          out <- c(out, count1) 
+          out <- c(out, count1)
           #Nodes checking
         }
         if (grep(j, i) - grep(pop, i) > 1 & i[grep(j, i)] == tail(i, 1)){
@@ -55,10 +55,48 @@ nicename <- function(i){
   name <- gsub(" Count", "", name)
   return(name)
 }
-filenameparser <- function(df){
-  col <- df$filename
-  col <- strsplit(col, "_")
-  col <- col[col != c("Mean", "SD")]
+filenameparser <- function(df, flname = "exp_ID date tissue genotype treatment sample_ID"){
+    if (flname == 0){
+        return(NULL)
+        }else{
+            map <- strsplit(flname, " ")[[1]]
+            col <- strsplit(df$filename, "_")
+            col <- col[col != c("Mean", "SD")]
+            col <- sapply(col, function(x) x[-length(x)])
+            v <- grep("ICs|Unstained|Isotype|unst|iso|IC", col, invert = TRUE, ignore.case = T)
+            newdf <- as.data.frame(lapply(seq_along(map), function(i) sapply(col[v], "[[", i)))
+            names(newdf) <- map
+            newdf$ICs <- rep(0, nrow(newdf))
+            newdf$Unstained <- rep(0, nrow(newdf))
+            newdf1 <- as.data.frame(lapply(seq_along(col[-v][[1]]), function(i) sapply(col[-v], "[[", i)))
+            #Process ICs
+            ic <- sapply(newdf1, function(x) grep("ICs|Isotype|iso|IC", x, ignore.case = T))
+            ic.logic <- sapply(ic[ic>0], function(x) is.numeric(x)[[1]])
+            ic <- ic[ic.logic][[1]]
+            ic.col <- sapply(seq_along(ic.logic), function(x){ if (ic.logic[x] == TRUE){return(x)}})
+            ic.col <- ic.col[sapply(ic.col, is.integer)][[1]]
+            newdf.IC <- newdf1[ic,1:ic.col-1]
+            newdf.IC[ic.col:length(map)] <- NA
+            names(newdf.IC) <- map
+            newdf.IC$ICs <- rep(1, nrow(newdf.IC))
+            newdf.IC$Unstained <- rep(0, nrow(newdf.IC))
+            newdf.IC <- cbind(df[ic,], newdf.IC)
+            sensedf <- cbind(df[v,], newdf)
+            sensedf <- rbind(newdf.IC,sensedf)
+            #Process Unstained
+            unst <- sapply(newdf1, function(x) grep("Unstained|unst", x, ignore.case = T))
+            unst.logic <- sapply(unst[unst>0], function(x) is.numeric(x)[[1]])
+            unst <- unst[unst.logic][[1]]
+            unst.col <- sapply(seq_along(unst.logic), function(x){ if (unst.logic[x] == TRUE){return(x)}})
+            unst.col <- unst.col[sapply(unst.col, is.integer)][[1]]
+            newdf.UN <- newdf1[ic,1:ic.col-1]
+            newdf.UN[unst.col:length(map)] <- NA
+            names(newdf.UN) <- map
+            newdf.UN$ICs <- rep(0, nrow(newdf.IC))
+            newdf.UN$Unstained <- rep(1, nrow(newdf.IC))
+            newdf.UN <- cbind(df[unst,], newdf.UN)
+            sensedf <- rbind(newdf.UN,sensedf)
+            }
 }
 popConstruct <- function(popul_file, all_data){
   cellcount <- names(all_data)[grep("Count", x = names(all_data))]
@@ -161,7 +199,7 @@ popConstruct <- function(popul_file, all_data){
     #if (is.null(wrong_kids) == FALSE | is.null(wrong_parents) == FALSE){
     #  cat(paste("Probably, something is wrong. Check the following data: \n", wrong_kids,"\n", wrong_parents))
     #}
-    
+
     pcol <- grep("parent", names(tempdf))
     tcol <- grep("target", names(tempdf))
     resdf <- NULL
@@ -196,7 +234,7 @@ popConstruct <- function(popul_file, all_data){
       break
     }
     cat("========= End of line ============\n\n")
-    
+
     finaldf <- c(finaldf, resdf)
     forDF <- c(forDF, bLYA[[2]])
   }
