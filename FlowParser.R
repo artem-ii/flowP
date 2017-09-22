@@ -45,8 +45,8 @@ names(all_data) <- gsub("T-bet", "Tbet", names(all_data))
 mfis <- names(all_data)[grep("Mean", x = names(all_data))]
 
 
-df <- popConstruct("pops.txt", all_data)
-close(inpops)
+df <- popConstruct("/Users/artemii/FlowParser/pops.txt", all_data, verbose=T)
 getwd()
 l <- tempdf[1]
 names(tempdf[[1]]) <- "ohh"
+all_data <- all_data[grep("Mean|SD", all_data$filename, invert = T),]

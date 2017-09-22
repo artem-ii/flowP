@@ -1,6 +1,10 @@
+filename
+Exp_ID Date Tissue Genotype Treatment Sample_ID
+isotypes
+RORgt+, Tbet+, Gata3+
+populations
 GDT_CD45+ - CD8a+, RORgt+, Tbet+, ST2+, Gata3+, CD25+
 CD4+Tcells_CD45+
-Treg_CD45+ - RORgt+, Tbet+, ST2hi, ST2neg Gata3+, CD25+
+Treg_CD45+ - RORgt+, Tbet+, ST2hi, ST2neg, Gata3+, CD25+
 Treg_CD4+Tcells
 NKcells_CD45+ - RORgt, ST2pos
-end
